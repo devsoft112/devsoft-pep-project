@@ -59,7 +59,3 @@ As a user, I should be able to submit a PUT request on the endpoint PUT localhos
 ## 7) API should be able to retrieve all messages written by a particular user.
 
 As a user, I should be able to submit a GET request on the endpoint GET localhost:8080/users/{user_id}/messages. The body should contain a JSON representation of a list containing all messages posted by a particular user ordered by their timestamp (newest messages first), which are retrieved from the database.
-
-## 8) API should be able to retrieve how many messages were written by users.
-
-As a user, I should be able to submit a GET request on the endpoint GET localhost:8080/users/messageCounts. The body should contain data that identifies key-value pairs of users (identified either by user ID or username) and the total number of posts that user has made. It's recommended to use the count() aggregate function and the group by command.
