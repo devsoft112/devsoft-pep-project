@@ -14,9 +14,7 @@ posted_by integer foreign key references User(user_id),
 text varchar(255),
 time_posted timestamp // could just use a long with epoch time
 
-## Integration tests
-
-Realistically, we can only test for 200 or 400 status codes provided by the REST endpoints, as well as the length of lists and presence of JSON response bodies, since we have no knowledge of how exactly the data will be modeled.
+Model classes, pom, h2, and integration tests provided, other classes not provided
 
 # Requirements
 
