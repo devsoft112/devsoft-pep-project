@@ -7,6 +7,7 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="PEP-Project" />
+        <module name="pep-project-final" />
       </profile>
     </annotationProcessing>
   </component>
