@@ -1,4 +1,4 @@
-package Application.Controller;
+package Controller;
 
 import io.javalin.Javalin;
 import io.javalin.http.Context;
@@ -17,6 +17,7 @@ public class SocialMediaController {
     public Javalin startAPI() {
         Javalin app = Javalin.create();
         app.get("example-endpoint", this::exampleHandler);
+
         return app;
     }
 

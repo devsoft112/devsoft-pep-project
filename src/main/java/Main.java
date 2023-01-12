@@ -1,6 +1,4 @@
-package Application;
-
-import Application.Controller.SocialMediaController;
+import Controller.SocialMediaController;
 import io.javalin.Javalin;
 
 /**

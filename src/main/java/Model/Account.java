@@ -1,4 +1,4 @@
-package Application.Model;
+package Model;
 
 /**
  * This is a class that models an Account.

@@ -1,4 +1,4 @@
-package Application.Util;
+package Util;
 
 import org.h2.tools.RunScript;
 

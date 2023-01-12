@@ -1,8 +1,8 @@
-package IntegrationTest;
 
-import Application.Controller.SocialMediaController;
-import Application.Model.Message;
-import Application.Util.ConnectionUtil;
+
+import Controller.SocialMediaController;
+import Model.Message;
+import Util.ConnectionUtil;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.javalin.Javalin;
