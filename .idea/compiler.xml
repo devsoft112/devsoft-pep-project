@@ -8,6 +8,7 @@
         <outputRelativeToContentRoot value="true" />
         <module name="PEP-Project" />
         <module name="pep-project-final" />
+        <module name="pep-project" />
       </profile>
     </annotationProcessing>
   </component>
