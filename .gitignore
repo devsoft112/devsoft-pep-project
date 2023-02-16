@@ -1,4 +1,9 @@
-h2/
-.idea/
-.vscode/
 target/
+h2/
+history_log.txt
+testCases_log.txt
+restructure_tmp/
+restructured_labs/
+.revature/tmp
+.vscode
+.idea/
