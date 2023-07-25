@@ -1,81 +1,101 @@
 package Controller;
-import Model.Account;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Random;
-import io.javalin.Javalin;
-import io.javalin.http.Context;
 
-/**
- * TODO: You will need to write your own endpoints and handlers for your
- * controller. The endpoints you will need can be
- * found in readme.md as well as the test cases. You should
- * refer to prior mini-project labs and lecture materials for guidance on how a
- * controller may be built.
- */
+import io.javalin.http.Context;
+import io.javalin.Javalin;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import Service.AccountService;
+import Service.MessageService;
+
+import DAO.AccountDAO;
+import DAO.MessageDAO;
+
+import Model.Account;
+import Model.Message;
+
+
 public class SocialMediaController {
 
-    // Add a data structure to store the registered accounts (simulating a database)
-    // This should ideally be a database connection, but for simplicity, we'll use a
-    // simple data structure here.
-    private Map<String, Account> accounts = new HashMap<>();
+    private AccountService accountService;
 
-    /**
-     * In order for the test cases to work, you will need to write the endpoints in
-     * the startAPI() method, as the test
-     * suite must receive a Javalin object from this method.
-     * 
-     * @return a Javalin app object which defines the behavior of the Javalin
-     *         controller.
-     */
+    private Map<String, Account> accounts = new HashMap<>();
+    private AccountDAO accountDAO = new AccountDAO();
+    private MessageDAO messageDAO = new MessageDAO();
+
     public Javalin startAPI() {
         Javalin app = Javalin.create();
         app.post("/register", this::registerHandler);
+        app.post("/login", this::loginHandler);
+        app.post("/messages", this::createMessageHandler);
+
+
+        // Initialize the AccountService with the AccountDAO
+        accountService = new AccountService(new AccountDAO());
 
         return app;
     }
 
-    /**
-     * This is the handler for the registration endpoint.
-     * 
-     * @param context The Javalin Context object manages information about both the
-     *                HTTP request and response.
-     */
     private void registerHandler(Context context) {
-        // Get the JSON payload from the request body and parse it as an Account object
         Account newAccount = context.bodyAsClass(Account.class);
 
-        // Validate the JSON payload and check if the account already exists
-        if (newAccount.getUsername().isBlank()
-                || newAccount.getPassword().length() < 4
-                || accounts.containsKey(newAccount.getUsername())) {
-            context.status(400).json("Registration failed");
+        // Check if the username is blank or password length is less than 4 characters
+        if (newAccount.getUsername().isBlank() || newAccount.getPassword().length() < 4) {
+            context.status(400).json("");
             return;
         }
 
-        // Generate an account_id (you can use any suitable method for this)
-        int accountId = generateAccountId();
+        // Create the new account using the AccountService
+        Account createdAccount = accountService.addAccount(newAccount);
 
-        // Set the account_id in the newAccount object
-        newAccount.setAccount_id(accountId);
-
-        // Add the newAccount to the accounts data structure
-        accounts.put(newAccount.getUsername(), newAccount);
-
-        // Return the newAccount object in the response
-        context.status(200).json(newAccount);
+        if (createdAccount != null) {
+            context.status(200).json(createdAccount);
+        } else {
+            context.status(400).json(""); // Registration failed
+        }
     }
 
-    /**
-     * This method generates a unique account_id (you can replace this with a more
-     * suitable approach).
-     * 
-     * @return a unique account_id integer.
-     */
-    private int generateAccountId() {
-        // Here, you can use any suitable method to generate an integer account_id
-        // For example, you can use a random number generator or increment a counter.
-        // In this example, I'll use a random number generator.
-        return new Random().nextInt(100000); // Generating a random integer between 0 and 99999
+    private void loginHandler(Context context) {
+        Account loginAccount = context.bodyAsClass(Account.class);
+
+        // Find the account with the provided username and password
+        Account matchedAccount = accountService.findAccountByUsernameAndPassword(loginAccount.getUsername(), loginAccount.getPassword());
+
+        if (matchedAccount != null) {
+            context.status(200).json(matchedAccount); // Login successful  asdwqd
+        } else {
+            context.status(401).json(""); // Login failed
+        }
     }
+    private void createMessageHandler(Context context) {
+        // Get the JSON payload from the request body and parse it as a Message object
+        Message newMessage = context.bodyAsClass(Message.class);
+    
+        // Check if the message_text is not blank and is under 255 characters
+        String messageText = newMessage.getMessage_text();
+        if (messageText == null || messageText.trim().isEmpty() || messageText.length() > 255) {
+            context.status(400).json("");
+            return;
+        }
+    
+        // Check if the posted_by refers to a real, existing user (account)
+        int postedByUserId = newMessage.getPosted_by();
+        Account postedByUser = accountDAO.getAccountById(postedByUserId);
+        if (postedByUser == null) {
+            context.status(400).json("");
+            return;
+        }
+    
+        // Insert the new message into the database
+        Message addedMessage = messageDAO.insertMessage(newMessage);
+        if (addedMessage != null) {
+            context.status(201).json(addedMessage);
+        } else {
+            context.status(500).json(""); // Something went wrong on the server side
+        }
+    }
+    
+    
 }
