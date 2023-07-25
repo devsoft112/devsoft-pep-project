@@ -80,7 +80,7 @@ public class SocialMediaController {
             return;
         }
     
-        // Check if the posted_by refers to a real, existing user (account)
+        // Check if the posted_by refers to a real, existing user (account) asdw 
         int postedByUserId = newMessage.getPosted_by();
         Account postedByUser = accountDAO.getAccountById(postedByUserId);
         if (postedByUser == null) {
