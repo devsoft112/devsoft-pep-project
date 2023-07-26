@@ -20,6 +20,7 @@ import Model.Message;
 public class SocialMediaController {
 
     private AccountService accountService;
+    private MessageService messageService;
 
     private Map<String, Account> accounts = new HashMap<>();
     private AccountDAO accountDAO = new AccountDAO();
@@ -30,6 +31,11 @@ public class SocialMediaController {
         app.post("/register", this::registerHandler);
         app.post("/login", this::loginHandler);
         app.post("/messages", this::createMessageHandler);
+        app.get("/messages/{id}", this::getMessageById);
+        app.get("/messages", this::getAllMessages);
+        app.get("/accounts/{id}/messages", this::getAllMessagesFromUser);
+        app.delete("/messages/{id}", this::deleteMessageById);
+        app.patch("/messages/{id}", this::updateMessageById);
 
 
         // Initialize the AccountService with the AccountDAO
@@ -69,13 +75,19 @@ public class SocialMediaController {
             context.status(401).json(""); // Login failed
         }
     }
+    
     private void createMessageHandler(Context context) {
+        messageService = new MessageService();
+
+
         // Get the JSON payload from the request body and parse it as a Message object
         Message newMessage = context.bodyAsClass(Message.class);
+
+        System.out.println(context);
     
         // Check if the message_text is not blank and is under 255 characters
         String messageText = newMessage.getMessage_text();
-        if (messageText == null || messageText.trim().isEmpty() || messageText.length() > 255) {
+        if (messageText == null || messageText.trim().isEmpty() || messageText.length() > 254) {
             context.status(400).json("");
             return;
         }
@@ -89,13 +101,85 @@ public class SocialMediaController {
         }
     
         // Insert the new message into the database
-        Message addedMessage = messageDAO.insertMessage(newMessage);
+        Message addedMessage = messageService.addMessage(newMessage);
+
         if (addedMessage != null) {
-            context.status(201).json(addedMessage);
+            context.status(200).json(addedMessage);
         } else {
             context.status(500).json(""); // Something went wrong on the server side
         }
+    } 
+
+    private void getMessageById(Context context) {
+        messageService = new MessageService();
+
+        int messageId = Integer.parseInt(context.pathParam("id"));
+        Message messageFound = messageService.getMessageById(messageId);
+
+        if(messageFound != null){
+            context.status(200).json(messageFound);
+        }else{
+            context.status(200).json("");
+        }
+        
     }
-    
-    
+
+    private void getAllMessages(Context context){
+        messageService = new MessageService();
+
+        List<Message> messagesFound = messageService.getAllMessages();
+
+        if(messagesFound != null){
+            context.status(200).json(messagesFound);
+        }else{
+            context.status(200).json("");
+        }
+    }
+
+    private void getAllMessagesFromUser(Context context){
+        messageService = new MessageService();
+
+        int messageId = Integer.parseInt(context.pathParam("id"));
+        List<Message> messages = messageService.getAllMessagesFromUser(messageId);
+
+        if(messages != null){
+            context.status(200).json(messages);
+        }else{
+            context.status(200).json("");
+        }
+    }
+
+    private void deleteMessageById(Context context) {
+        messageService = new MessageService();
+
+        int messageId = Integer.parseInt(context.pathParam("id"));
+        Message messageFound = messageService.deleteMessageById(messageId);
+
+        if(messageFound != null){
+            context.status(200).json(messageFound);
+        }else{
+            context.status(200).json("");
+        }
+    }
+
+    private void updateMessageById(Context context){
+        messageService = new MessageService();
+
+        int messageId = Integer.parseInt(context.pathParam("id"));
+        Message newMessage = context.bodyAsClass(Message.class);
+        newMessage.message_id = messageId;
+
+        Message messageFound = messageService.updateMessageById(newMessage);
+
+        if (messageFound == null || messageFound.message_text.trim().isEmpty() || messageFound.message_text.length() > 254) {
+            context.status(400).json("");
+            return;
+        }
+        
+        if (messageFound != null) {
+            context.status(200).json(messageFound);
+        }
+    }
+
 }
+    
